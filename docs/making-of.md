@@ -90,7 +90,30 @@ claude plugin test mod/desktop-pet
 
 吹き出しに出す文は、返答の最後の段落です。表、箇条書き、コード、出典は飛ばし、「？」で終わる確認の質問も出しません。`maxLine` を超えたら切ります。
 
-## 6. つまずいたところ
+## 6. Windows の通知を差し替える
+
+Claude Desktop の通知は、アプリ自身が作っていて、文を変える設定も、mod から書き換える口もありません。そこで、Desktop の通知は Windows の設定で切り、mod から自分で通知を出すことにしました。
+
+| 仕組み | 使い方 |
+|---|---|
+| `turn.complete` | 返答が終わったら、吹き出しと同じひとことと表情で通知する |
+| `classic.Notification` | `notification_type` に `permission` を含むとき（権限の確認待ち）に通知する |
+| `$.process.run` | `powershell.exe` で `notify/notify.ps1` を動かす |
+| `$.session.surfaces()` | `desktop` が入っていれば、その session は今 Desktop に表示されている |
+| `session.start` | 送り主の登録を先に済ませる |
+
+`notify.ps1` は Windows PowerShell 5.1 の WinRT の通知 API で通知を出します。送り主は `HKCU\Software\Classes\AppUserModelId\<ID>` に名前とアイコンを書いて登録します。session のタイトルは、会話の記録（`~/.claude/projects/*/<session ID>.jsonl`）の最後の `custom-title` の行から読みます。
+
+### つまずいたところ
+
+- **Desktop は、表示している session にだけ画面をつなぐ。** 別の session に切り替えると `session.detach` が、戻ると `session.attach` が届く。これで「その session を見ているか」が分かる
+- **送り主を作った直後に通知を出すと、Windows が名前とアイコンを覚え損ねる。** session ごとに送り主を作ったところ、名前が ID のまま、アイコンなしで出た。一度覚えた送り主は、あとで名前を変えても反映されにくい。送り主は1つにして、session の開始時に先に登録し、session のタイトルは通知の1行目に入れることにした
+- **スクリプトは UTF-8（BOM つき）で保存する。** Windows PowerShell 5.1 は BOM のない UTF-8 を正しく読めず、日本語が化ける
+- **PowerShell 7（`pwsh`）では WinRT の型が読めない。** `powershell.exe` を使う
+- **Claude のロゴは、Claude Desktop のパッケージの `assets\Square44x44Logo.targetsize-256_altform-unplated.png` にある。** リポジトリには入れず、`Get-AppxPackage` で場所を調べて、登録のときにコピーする
+- **テストでは `session.id` などの答えを `{ value }` で返す。** 文字列をそのまま返すと「result object ではない」と言われて無視される
+
+## 7. つまずいたところ（mod 全般）
 
 ### session の途中で読み込んだ mod が Desktop に出ない
 

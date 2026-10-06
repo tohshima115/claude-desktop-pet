@@ -11,6 +11,11 @@ export const character: Character = {
   "greeting": "今日もいっしょにがんばろうね。",
   "errorLine": "あわわ、エラーで止まっちゃった…",
   "thinkingLine": "かんがえ中…",
+  "notify": {
+    "enabled": true,
+    "doneLine": "おわったよ。",
+    "permissionLine": "たしかめてほしいことがあるよ。"
+  },
   "activities": [
     {
       "tool": "^(Edit|Write|NotebookEdit)$",

@@ -12,6 +12,7 @@ Anthropic の公式ツールではありません。
 - 作業中は作業用の表情にして、吹き出しに「書いてます…」「調べてます…」など、使っているツールに合わせたひとことを出す
 - 返答が終わったら、最後の段落を吹き出しに出し、その中の言葉で表情を選ぶ
 - ターミナル版の Claude Code では絵を描けないので、名前とひとことだけを出す
+- Windows では、返答が終わったときと権限の確認待ちのときに、キャラの表情つきで通知を出す（下の「Windows の通知」）
 
 キャラの名前、色、ひとこと、表情を決める言葉、絵は、すべて `characters/<キャラ>/` にまとまっています。mod 本体を触らずに、自分のキャラに差し替えられます。
 
@@ -52,11 +53,33 @@ session の途中で mod を読み込んでも、Desktop には表示されな�
 
 吹き出しを活かすには、Claude に「返答の最後に短いひとことを置く」話し方をしてもらう必要があります。`~/.claude/CLAUDE.md` に書くテンプレートを [examples/CLAUDE.md-snippet.md](examples/CLAUDE.md-snippet.md) に置いています。
 
+## Windows の通知
+
+Claude Desktop 自身の通知の代わりに、キャラの表情つきの通知を出します。
+
+- 送り主は「Claude」（アイコンは、PC に入っている Claude Desktop のロゴを読み込んで使う）
+- 1行目（太字）に session のタイトル、2行目にキャラのひとこと、横にそのときの表情
+- 返答が終わったとき、エラーで止まったとき、権限の確認待ちのときに出す
+- 出すかどうかは次のように決める
+
+| その session を表示しているか | Claude のウィンドウ | 通知 |
+|---|---|---|
+| 表示していない（別の session を見ている） | 前面でも後ろでも | 出す |
+| 表示している | 後ろ | 出す |
+| 表示している | 前面 | 出さない |
+
+使うときの注意です。
+
+- **Claude Desktop 自身の通知は、Windows の「設定 → システム → 通知」で切ってください。** そのままだと両方が出ます。一覧に「Claude」が2つ並ぶことがあるので、Claude Desktop 本体のほうを切ります
+- Windows PowerShell 5.1（Windows に最初から入っている `powershell.exe`）で動かします。Windows 以外では何もしません
+- 通知を出さないなら、`character.json` の `notify.enabled` を `false` にします
+- 通知がおかしいときは、`mod/desktop-pet/notify/notify.log`（mod 側）と `ps1-trace.log`（スクリプト側）に記録が残っています
+
 ## 自分のキャラを作る
 
 1. `characters/simple-pet/` をコピーして、`characters/<自分のキャラ>/` を作る
 2. `character.json` を書き換える（項目は [docs/character-format.md](docs/character-format.md)）
-3. `svg/` に表情ごとの絵を置く。少なくとも `normal.svg` と、`character.json` で名前を出した表情の絵が要る
+3. `svg/` に表情ごとの絵を置く。少なくとも `normal.svg` と、`character.json` で名前を出した表情の絵が要る。通知を使うなら、`icons/` に表情ごとの PNG（256px ほどの正方形。顔のまわりを切り出すと見やすい）も置く
 4. 絵が大きいときは、1枚 131,072 文字以内に縮める
 
    ```sh
@@ -85,8 +108,9 @@ claude plugin test mod/desktop-pet
 | パス | 中身 |
 |---|---|
 | `mod/desktop-pet/` | mod 本体。`hooks/register.tsx` が描画とイベント処理、`hooks/character.ts` が組み込んだキャラ（生成したファイル） |
-| `characters/<キャラ>/` | `character.json`、表情ごとの `svg/`、`preview.png` |
-| `tools/build-character.mjs` | キャラのフォルダから `hooks/character.ts` を作る。足りない絵や大きすぎる絵があれば止まる |
+| `mod/desktop-pet/notify/` | Windows の通知を出す `notify.ps1` と、組み込んだキャラの表情アイコン |
+| `characters/<キャラ>/` | `character.json`、表情ごとの `svg/` と `icons/`、`preview.png` |
+| `tools/build-character.mjs` | キャラのフォルダから `hooks/character.ts` を作り、アイコンを `notify/icons/` にコピーする。足りない絵や大きすぎる絵があれば止まる |
 | `tools/optimize-svg.mjs` | SVG を Claude Code の上限に収まるよう縮める |
 | `docs/making-of.md` | キャラ作りから mod の完成までの手順と、つまずいたところ |
 | `docs/character-format.md` | `character.json` の書き方 |
@@ -94,4 +118,4 @@ claude plugin test mod/desktop-pet
 
 ## ライセンス
 
-MIT です。ただし `characters/kurato-ai/` の絵（`svg/` と `preview.png`）は Magnific で生成したもので、ライセンスの対象外です。
+MIT です。ただし `characters/kurato-ai/` の絵（`svg/`、`icons/`、`preview.png`）は Magnific で生成したもので、ライセンスの対象外です。Claude のロゴはリポジトリに含めず、通知を出す PC の Claude Desktop から読み込んで使います。

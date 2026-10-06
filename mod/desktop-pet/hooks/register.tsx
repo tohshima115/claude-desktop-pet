@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 
 import type { Mood } from '../types'
 import { character } from './character'
@@ -42,7 +42,82 @@ export const moodFor = (said: string): Mood =>
 export const activityFor = (tool: string): string =>
   activityRules.find(({ pattern }) => pattern.test(tool))?.line ?? character.thinkingLine
 
+// Desktop は、表示している session にだけ画面をつなぐ（別の session に切り替えると離れる）
+async function isShownOnDesktop($: EngineInterface): Promise<boolean> {
+  try {
+    return (await $.session.surfaces()).includes('desktop')
+  } catch {
+    return false
+  }
+}
+
+// 通知を出そうとした結果を notify/notify.log に残す（最新の 50 行）。記録に失敗しても止めない
+async function logNotify($: EngineInterface, text: string) {
+  try {
+    const path = `${$.plugin.root}/notify/notify.log`
+    const old = (await $.fs.exists(path)) ? (await $.fs.read(path)).split('\n').filter(l => l !== '') : []
+    const stamp = new Date(await $.clock.now()).toISOString()
+    await $.fs.write(path, [...old, `${stamp} ${text}`].slice(-50).join('\n') + '\n')
+  } catch {
+    // 記録できなくても、通知や作業には関係しない
+  }
+}
+
+function notifyArgv($: EngineInterface, args: string[]): string[] {
+  return ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', `${$.plugin.root}/notify/notify.ps1`, ...args]
+}
+
+// Windows の通知を、キャラのそのときの表情のアイコンで出す。Windows 以外では powershell.exe がなく、何もしない
+async function notify($: EngineInterface, body: string, face: Mood) {
+  if (!character.notify.enabled) {
+    return
+  }
+  let sessionId = '?'
+  try {
+    sessionId = await $.session.id()
+    // この session を表示していなければ、Claude のウィンドウが前面でも通知する。
+    // 表示していれば、Claude のウィンドウが前面かどうかの判断を notify.ps1 に任せる
+    const shown = await isShownOnDesktop($)
+    const force = shown ? [] : ['-Force']
+    const result = await $.process.run(
+      notifyArgv($, ['-Body', body, '-Mood', face, '-SessionId', sessionId, '-FallbackTitle', character.name, ...force]),
+      { timeoutMs: 15000 },
+    )
+    const stderr = result.stderr.trim().replace(/\s+/g, ' ').slice(0, 300)
+    await logNotify($, `${sessionId.slice(0, 8)} shown=${shown} exit=${result.exitCode}${stderr === '' ? '' : ` stderr=${stderr}`}`)
+  } catch (error) {
+    await logNotify($, `${sessionId.slice(0, 8)} failed: ${String(error).slice(0, 300)}`)
+  }
+}
+
+// 送り主「Claude」を先に登録しておく。初めての通知の直前に登録すると、Windows が名前とアイコンを覚え損ねる
+async function registerSender($: EngineInterface) {
+  if (!character.notify.enabled) {
+    return
+  }
+  try {
+    await $.process.run(notifyArgv($, ['-RegisterOnly']), { timeoutMs: 15000 })
+  } catch {
+    // Windows 以外や、登録できなかったときは何もしない
+  }
+}
+
 export const register: Register = on => {
+  on('session.start', async ($, e, next) => {
+    void registerSender($)
+
+    return next(e)
+  })
+
+  on('classic.Notification', async ($, e, next) => {
+    if (e.notification_type.includes('permission')) {
+      const call = character.userCall === '' ? '' : `${character.userCall}、`
+      void notify($, `${call}${character.notify.permissionLine}`, 'worried' in character.svgs ? 'worried' : 'normal')
+    }
+
+    return next(e)
+  })
+
   on('prompt.submit', async ($, e, next) => {
     await update($, activity, () => character.thinkingLine)
 
@@ -64,9 +139,11 @@ export const register: Register = on => {
           await update($, line, () => said)
           await update($, mood, () => moodFor(said))
         }
+        void notify($, said ?? character.notify.doneLine, said === null ? 'normal' : moodFor(said))
       } else if (e.reason === 'error') {
         await update($, line, () => character.errorLine)
         await update($, mood, () => character.errorMood)
+        void notify($, character.errorLine, character.errorMood)
       }
     }
 

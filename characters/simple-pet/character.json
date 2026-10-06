@@ -8,19 +8,71 @@
   "greeting": "今日もいっしょにがんばろうね。",
   "errorLine": "あわわ、エラーで止まっちゃった…",
   "thinkingLine": "かんがえ中…",
+  "notify": {
+    "enabled": true,
+    "doneLine": "おわったよ。",
+    "permissionLine": "たしかめてほしいことがあるよ。"
+  },
   "activities": [
-    { "tool": "^(Edit|Write|NotebookEdit)$", "line": "かきかき中…" },
-    { "tool": "^(Read|Grep|Glob)$", "line": "よみよみ中…" },
-    { "tool": "^(Bash|PowerShell)$", "line": "コマンド実行中…" },
-    { "tool": "^(WebSearch|WebFetch)$", "line": "しらべもの中…" },
-    { "tool": "^(Agent|Workflow)$", "line": "なかまと手分け中…" },
-    { "tool": "^mcp__", "line": "そとのサービスとお話し中…" }
+    {
+      "tool": "^(Edit|Write|NotebookEdit)$",
+      "line": "かきかき中…"
+    },
+    {
+      "tool": "^(Read|Grep|Glob)$",
+      "line": "よみよみ中…"
+    },
+    {
+      "tool": "^(Bash|PowerShell)$",
+      "line": "コマンド実行中…"
+    },
+    {
+      "tool": "^(WebSearch|WebFetch)$",
+      "line": "しらべもの中…"
+    },
+    {
+      "tool": "^(Agent|Workflow)$",
+      "line": "なかまと手分け中…"
+    },
+    {
+      "tool": "^mcp__",
+      "line": "そとのサービスとお話し中…"
+    }
   ],
   "workingMood": "serious",
   "errorMood": "troubled",
   "moods": [
-    { "mood": "troubled", "words": ["すみません", "ごめん", "失敗", "エラー", "だめでした", "あわわ"] },
-    { "mood": "worried", "words": ["休んで", "無理しないで", "心配", "大丈夫", "疲れ"] },
-    { "mood": "happy", "words": ["やった", "よかった", "できました", "できた", "通りました", "ありがとう"] }
+    {
+      "mood": "troubled",
+      "words": [
+        "すみません",
+        "ごめん",
+        "失敗",
+        "エラー",
+        "だめでした",
+        "あわわ"
+      ]
+    },
+    {
+      "mood": "worried",
+      "words": [
+        "休んで",
+        "無理しないで",
+        "心配",
+        "大丈夫",
+        "疲れ"
+      ]
+    },
+    {
+      "mood": "happy",
+      "words": [
+        "やった",
+        "よかった",
+        "できました",
+        "できた",
+        "通りました",
+        "ありがとう"
+      ]
+    }
   ]
 }

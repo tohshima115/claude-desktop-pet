@@ -3,3 +3,6 @@ node_modules/
 mod/desktop-pet/.claude-plugin/types/
 mod/desktop-pet/tsconfig.json
 debug.log
+# 通知の記録と、Claude Desktop からコピーするロゴ
+mod/desktop-pet/notify/*.log
+mod/desktop-pet/notify/claude-logo.png

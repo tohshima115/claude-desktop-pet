@@ -106,3 +106,48 @@ test('帯に挨拶を出し、返答が終わるとひとことと表情が変�
   expect(await desktop.find({ type: 'Svg', alt: `${character.name}（${mood}）` })).toBeDefined()
   await desktop.unmount()
 })
+
+describe('通知', () => {
+  const runTurn = async (
+    $: Parameters<Parameters<typeof test>[1]>[0],
+    on: Parameters<Parameters<typeof test>[1]>[1],
+    surfaces: string[],
+  ) => {
+    const calls: string[][] = []
+    on('turn.complete', async () => ({ text: '' }))
+    on('session.id', async () => ({ value: 'test-session' }))
+    on('session.surfaces', async () => ({ value: surfaces }))
+    on('process.run', async (_$, e) => {
+      calls.push([...e.argv])
+      return { exitCode: 0, stdout: '', stderr: '' }
+    })
+    const { word } = firstRule(0)
+    await $.turn.complete({ answer: `本文です。\n\n${word}。`, durationMs: 1000, isAborted: false, turnId: 'n1', reason: 'answer' })
+    // 通知は返答の終わりを待たせずに裏で出すので、呼ばれるまで少し待つ
+    for (let i = 0; i < 50 && calls.length === 0; i++) {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    }
+    return { argv: calls.find(a => a.some(x => x.endsWith('notify.ps1'))), word }
+  }
+
+  test('表示していない session では、ひとことと表情で必ず通知する', async ($, on) => {
+    const { argv, word } = await runTurn($, on, [])
+    if (!character.notify.enabled) {
+      expect(argv).toBeUndefined()
+      return
+    }
+    expect(argv).toContain(`${word}。`)
+    expect(argv).toContain(firstRule(0).mood)
+    expect(argv).toContain('test-session')
+    expect(argv).toContain('-Force')
+  })
+
+  test('表示している session では、前面かどうかの判断を notify.ps1 に任せる', async ($, on) => {
+    const { argv } = await runTurn($, on, ['desktop'])
+    if (!character.notify.enabled) {
+      return
+    }
+    expect(argv).toBeDefined()
+    expect(argv).not.toContain('-Force')
+  })
+})

@@ -12,6 +12,8 @@ export type Character = {
   greeting: string
   errorLine: string
   thinkingLine: string
+  // Windows の通知。返答が終わったとき、権限の確認待ちのときに出す
+  notify: { enabled: boolean; doneLine: string; permissionLine: string }
   activities: { tool: string; line: string }[]
   workingMood: Mood
   errorMood: Mood

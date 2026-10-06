@@ -1,6 +1,6 @@
 // characters/<キャラ>/ の character.json と svg/*.svg を、mod が読む hooks/character.ts にまとめる。
 // 使い方: node tools/build-character.mjs characters/simple-pet
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,6 +43,21 @@ for (const { tool } of config.activities) {
   new RegExp(tool); // 書き間違えた正規表現は、ここで止める
 }
 
+// 通知の表情アイコン（icons/<表情>.png）を mod にコピーする。なければ通知はアイコンなしになる
+const iconSrc = join(dir, 'icons');
+const iconDst = join(root, 'mod/desktop-pet/notify/icons');
+mkdirSync(iconDst, { recursive: true });
+for (const file of readdirSync(iconDst).filter(f => f.endsWith('.png'))) {
+  rmSync(join(iconDst, file));
+}
+const icons = existsSync(iconSrc) ? readdirSync(iconSrc).filter(f => f.endsWith('.png')) : [];
+for (const file of icons) {
+  copyFileSync(join(iconSrc, file), join(iconDst, file));
+}
+if (config.notify?.enabled && !icons.includes('normal.png')) {
+  console.warn(`${basename(dir)}: icons/normal.png is missing, notifications will show no face`);
+}
+
 const character = { ...config, svgs };
 const out =
   `// ${dirArg.replace(/\\/g, '/')} から tools/build-character.mjs で生成。手で編集しない\n` +
@@ -50,4 +65,4 @@ const out =
   `export const character: Character = ${JSON.stringify(character, null, 2)}\n`;
 
 writeFileSync(join(root, 'mod/desktop-pet/hooks/character.ts'), out);
-console.log(`built ${config.name} (${Object.keys(svgs).join(', ')}) into mod/desktop-pet/hooks/character.ts`);
+console.log(`built ${config.name} (${Object.keys(svgs).join(', ')}, ${icons.length} icons) into mod/desktop-pet`);
