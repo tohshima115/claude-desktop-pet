@@ -1,6 +1,6 @@
-# kurato-ai-mod
+# ClaudeDesktopPet
 
-Claude Code の入力欄の上に、相棒キャラ「倉戸あい（くらと あい）」のちびキャラを出す mod です。Claude の返答の最後のひとことを吹き出しに出し、作業中や返答の中身に合わせて表情とポーズを切り替えます。
+Claude Desktop の Code タブで、入力欄の上に、相棒キャラ「倉戸あい（くらと あい）」のちびキャラを出す mod です。Claude の返答の最後のひとことを吹き出しに出し、作業中や返答の中身に合わせて表情とポーズを切り替えます。
 
 ![5つの表情とポーズ](assets/preview.png)
 
@@ -25,7 +25,7 @@ Claude Code の入力欄の上に、相棒キャラ「倉戸あい（くらと �
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "C:/path/to/kurato-ai-mod/mod/kurato-ai",
+       "CLAUDE_CODE_PLUGIN_DIRS": "C:/path/to/ClaudeDesktopPet/mod/kurato-ai",
        "CLAUDE_CODE_PLUGIN_DIR_WATCH": "1"
      }
    }
