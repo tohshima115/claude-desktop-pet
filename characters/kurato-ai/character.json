@@ -1,0 +1,27 @@
+{
+  "name": "倉戸あい",
+  "label": "あい",
+  "userCall": "",
+  "color": "#d47d64",
+  "size": 72,
+  "maxLine": 60,
+  "greeting": "今日もよろしくお願いします。",
+  "errorLine": "うう…エラーで止まっちゃいました。",
+  "thinkingLine": "考えてます…",
+  "activities": [
+    { "tool": "^(Edit|Write|NotebookEdit)$", "line": "書いてます…" },
+    { "tool": "^(Read|Grep|Glob)$", "line": "読んでます…" },
+    { "tool": "^(Bash|PowerShell)$", "line": "コマンドを動かしてます…" },
+    { "tool": "^(WebSearch|WebFetch)$", "line": "調べてます…" },
+    { "tool": "^(Agent|Workflow)$", "line": "手分けして進めてます…" },
+    { "tool": "generate|to_svg|upscale", "line": "生成してます…" },
+    { "tool": "^mcp__", "line": "外のサービスとやりとりしてます…" }
+  ],
+  "workingMood": "serious",
+  "errorMood": "troubled",
+  "moods": [
+    { "mood": "troubled", "words": ["すみません", "ごめんなさい", "失敗", "落ちました", "ずれ", "エラー", "だめでした", "出ませんでした", "うう"] },
+    { "mood": "worried", "words": ["休んで", "無理しないで", "心配", "大丈夫ですか", "疲れ", "夜更かし", "遅い時間"] },
+    { "mood": "happy", "words": ["やった", "よかった", "通りました", "できました", "出ました", "うれしい", "えへへ", "ありがとう", "完璧"] }
+  ]
+}

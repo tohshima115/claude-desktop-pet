@@ -2,9 +2,8 @@ MIT License
 
 Copyright (c) 2026 tohshima115
 
-This license applies to the code in mod/ and tools/. It does not cover the
-character artwork in assets/ or the SVG data embedded in
-mod/kurato-ai/hooks/chibi.ts.
+This license does not cover the character artwork in characters/kurato-ai/
+(svg/ and preview.png), which was generated with Magnific.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

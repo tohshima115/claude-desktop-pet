@@ -1,5 +1,5 @@
 node_modules/
 # Claude Code が mod を読み込んだときに書き出すファイル
-mod/kurato-ai/.claude-plugin/types/
-mod/kurato-ai/tsconfig.json
+mod/desktop-pet/.claude-plugin/types/
+mod/desktop-pet/tsconfig.json
 debug.log

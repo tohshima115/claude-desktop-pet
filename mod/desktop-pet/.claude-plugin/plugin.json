@@ -1,0 +1,11 @@
+{
+  "name": "desktop-pet",
+  "version": "0.1.0",
+  "description": "Claude Desktop の Code タブで、入力欄の上に好きなキャラと吹き出しを出す",
+  "types": "./types/index.d.ts",
+  "author": {
+    "name": "tohshima115"
+  },
+  "repository": "https://github.com/tohshima115/claude-desktop-pet",
+  "license": "MIT"
+}
